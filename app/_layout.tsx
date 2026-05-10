@@ -2,9 +2,10 @@ import { Redirect, Stack, useSegments } from "expo-router";
 import { ThemeProvider } from "@rneui/themed";
 
 import { theme } from "../constants/theme";
+import { useAuthStore } from "../stores/useAuthStore";
 
 export default function RootLayout() {
-  const isAuthed = false;
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
 
   const segments = useSegments();
   const inAuthGroup = segments[0] === "(auth)";
