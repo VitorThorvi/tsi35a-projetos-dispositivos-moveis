@@ -6,7 +6,7 @@ Check Engine Clube é uma aplicação móvel desenvolvida para auto entusiastas,
 
 Se a sua garagem ainda não possui manchas de óleo o suficiente, você está com a vida tranquila e qier um pouco mais de emoção no seu dia-a-dia essa aplicação te ajudará a encontrar o seu novo carro velho!
 
-O objetivo da aplicação fornecer ao usuário um espaço em que ele possa adicionar uma marca e modelo de veículo de interesse. E dentro desse escopo adicionar anúncios de venda de carros dessa marca/modelo de diferentes marketplaces para poder avaliar se o carro é uma boa opção para compra ou não. 
+O objetivo da aplicação fornecer ao usuário um espaço em que ele possa adicionar uma marca e modelo de veículo de interesse. E dentro desse escopo adicionar anúncios de venda de carros dessa marca/modelo de diferentes marketplaces para poder avaliar se o carro é uma boa opção para compra ou não.
 
 ### Features
 
@@ -152,16 +152,76 @@ listings -> evaluations
 
 ## sprints
 
-- [ ] **sprint 0** - 1 semana: estruturação inicial do projeto. Criar ambiente de desenvolvimento com Expo Go e expo router, criar migrations para o banco, configurar thema para React Native Elements;
-- [ ] **sprint 1** - 2 semanas: autenticação e auth-guards (auth guards para permitir que o projeto seja expandido para autenticação via firebase com armazenamento de dados local no banco SQLite.);
-- [ ] **sprint 2** - 1 semanas: implementação de CRUD para veículos de interesse; levantamento origem de dados para marketplaces de origem e também de marcas e modelos de carros;
+- [x] **sprint 0** - 1 semana: estruturação inicial do projeto. Criar ambiente de desenvolvimento com Expo Go e expo router, criar migrations para o banco, configurar thema para React Native Elements;
+- [ ] **sprint 1** - 2 semanas: autenticação e auth-guards **(parcial: UI de login + `useAuthStore` (Zustand) + auth-guard prontos; signup, recuperação de senha, persist middleware e hash de senha com `expo-crypto` ficam para o checkpoint 3)**;
+- [ ] **sprint 2** - 1 semanas: implementação de CRUD para veículos de interesse; levantamento origem de dados para marketplaces de origem e também de marcas e modelos de carros **(parcial: tela de listagem + `useVehicleStore` (Zustand) com dados placeholder; CRUD real via repository + SQLite no checkpoint 3)**;
 - [ ] **sprint 3** - 1 semanas: implementação tela de detalhes de anúncio de venda de carros;
 - [ ] **sprint 4** - 1 semana: implementação de métricas de avaliação dos carros (anuncio: recomendado, atenção, evitar), estado de conservação (bom, regular, ruim); preço (acima da fipe, abaixo da fipe, na fipe) e badges para métricas;
-- [ ] **sprint 5** - 2 semana: dashboard. Implementação funcionalidade de ações rápidas, cards para anúncios adicionados recentemente, melhores anúncios, estatísticas gerais;
+- [ ] **sprint 5** - 2 semana: dashboard. Implementação funcionalidade de ações rápidas, cards para anúncios adicionados recentemente, melhores anúncios, estatísticas gerais **(parcial: layout pronto consumindo `useAuthStore` e `useVehicleStore`; cards de estatísticas reais e ações rápidas no checkpoint 3)**;
 - [ ] **sprint 6** - 1 semana: busca e filtros;
 - [ ] **sprint 7** - 1 semana: teste de usabilidade; listagem e correção de bugs;
 
 **Tempo total estimado para desenvolvimento do projeto de aproximadamente 10 semanas.**
+
+## Atualizações desde o último checkpoint
+
+### Recursos de módulos anteriores aplicados
+
+#### **Expo Router**
+- usado em `app/_layout.tsx`, `app/(auth)/_layout.tsx`, `app/(tabs)/_layout.tsx` para navegação file-based;
+- títulos de header configurados via `Stack.Screen options.title`.
+- Auth-guard baseado em `useAuthStore.isAuthenticated` implementado no root layout via `<Redirect />`
+- rota raiz `/` em `app/index.tsx` com `<Redirect />` para `(tabs)/dashboard` ou `(auth)/login` conforme o estado de autenticação.
+
+#### **Zustand**
+- `stores/useAuthStore.ts` gerencia `currentUser` e `isAuthenticated` com a action `login(email, senha)` (que executa o parse do Zod)
+- `stores/useVehicleStore.ts` mantém a lista de veículos (ainda com placeholder neste checkpoint). Tela de login consome `useAuthStore`; a dasg consome ambos stores;
+- `useVehicleStore` consumido pela lista de veículos;
+- Padrão usado de um store por domínio;
+
+#### **Zod**
+- usado em `schemas/authSchema.ts` para validar e-mail e senha do formulário de login antes do submit. O parse acontece dentro da action `login` do store
+
+#### **TypeScript strict mode**
+- `tsconfig.json` com `"strict": true`;
+- todos os componentes customizados têm tipos de Props explícitos (`VehicleCardProps`, `StatCardProps`, `AuthInputProps`).
+
+#### **React Native Elements (`@rneui/themed`)**
+- tema custom `constants/theme.ts` aplicado via `<ThemeProvider>` no root layout;
+- `Button`, `Input` e demais primitivas consomem o tema.
+
+#### **FlatList**
+- usada nas telas de Veículos e Dashboard;
+
+### Conceitos de "Boas práticas para a criação de componentes reutilizáveis" aplicados
+
+- **Single Responsibility Principle** -
+  - `VehicleCard` apresenta um veículo; `StatCard` apresenta uma métrica;
+  - `AuthInput` apresenta um campo de entrada. Sem lógica de domínio acoplada.
+
+- **Props como API limpa**
+  - `VehicleCard` aceita  `{ vehicle, onPress }` ;
+  - sem acesso direto a stores ou ao banco. Cada componente recebe o que precisa via props e devolve callback.
+
+- **Composição**
+  - Dashboard compõe `StatCard` + `VehicleCard`
+  - Login compõe `AuthInput` × 2 + botão "Entrar" em vez de reimplementar inputs estilizados.
+
+- **Type-safe props**
+  - tipos TypeScript explícitos em `components/vehicles/VehicleCard.tsx`, `components/ui/StatCard.tsx`, `components/ui/AuthInput.tsx`. Sem `any`, sem props anônimos.
+
+- **Componentes presentational stateless**
+  - `VehicleCard`, `StatCard`, `AuthInput` recebem props, renderizam UI, emitem callbacks. Estado de domínio vive nos stores;
+  - estado efêmero (texto digitado) vive nas telas.
+
+- **Reutilização**
+-  `VehicleCard` consumido em 2 telas (Dashboard e Lista de Veículos), justificando a colocação em `components/`. `StatCard` prevê uso futuro em outras telas.
+
+### Demonstração
+
+link do video demonstração checkpoint 2:
+
+[tsi35a - projetos para dispositivos móveis - checkpoint 2](https://youtu.be/efZchVRKR38)
 
 ---
 
