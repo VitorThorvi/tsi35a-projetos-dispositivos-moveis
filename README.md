@@ -11,7 +11,7 @@ O objetivo da aplicação fornecer ao usuário um espaço em que ele possa adici
 ### Features
 
 **Autenticação do Usuário**
-* Cadastro de novo usuário (e-mail/senha ou login social)
+* Cadastro de novo usuário (e-mail/senha)
 * Login / Logout
 * Recuperação de senha
 
@@ -87,12 +87,16 @@ Here are a few:
 
 ## Tecnologias utilizadas
 
-Planeja-se desenvolver o projeto utilizando as seguintes tecnologias:
+O projeto é desenvolvido com as seguintes tecnologias:
 - Expo Go
-- RNE (React Native Elements)
-- SQLite
+- Expo Router (navegação file-based)
+- React Native Elements (`@rneui/themed`) + NativeWind (estilização)
+- Zustand (gerência de estado, um store por domínio)
+- Zod (validação nas bordas)
+- Firebase Authentication (autenticação: cadastro, login, logout, recuperação de senha)
+- SQLite via `expo-sqlite` (persistência local dos dados do app)
 
-Futuramente planeja-se user firebase para autenticar na aplicação
+A autenticação roda no Firebase para fins de cadastrod e usuário; os dados de veículos, anúncios e avaliações ficam offline no SQLite local.
 
 [//]: # (TODO descrever corretamente como executar em ambiente de desenvolvimento)
 [//]: # (`git clone repo check-engine-club`)
@@ -137,31 +141,38 @@ Futuramente planeja-se user firebase para autenticar na aplicação
 
 <img alt="Check engine club database model" height="900" src="readme-figma-pictures/check-engine-club-database-model.png" title="Check engine club database model"/>
 
-Banco de dados SQLite implementado localmente. Posteriormente pode ser implementada autenticação com firebase alterando principalmente a tabela users do modelo de banco de dados.
+A persistência dos dados do app é feita localmente em **SQLite** (`expo-sqlite`); a autenticação é feita pelo **Firebase Authentication**.
 
-Entidades do modelo: users, vehicles, listings e evaluations.
+O diagrama acima representa a **modelagem prevista**. Na implementação para o checkpoint 3 foram feitos ajustes de redução de escopo:
 
-Na implementação com SQLite a relação de chave estrangeira implica em `ON DELETE CASCADE`. Removendo o usuário, todos os dados que o referenciam como foreign key também são deletados.
+- A identidade do usuário passou a ser gerenciada pelo Firebase — **não há tabela `users` local**. Cada veículo guarda o UID do Firebase em `vehicles.user_id` (sem chave estrangeira; o escopo por usuário é feito por filtro `WHERE user_id = <uid>`).
+- Entidades persistidas no SQLite: **vehicles, listings e evaluations**.
+- A cascata `ON DELETE CASCADE` passou a valer de **vehicles → listings → evaluations**: ao remover um veículo, seus anúncios e avaliações também são removidos.
 
 **relações 1:N**
-- users -> vehicles
 - vehicles -> listings
 
 **relações 1:1**
-listings -> evaluations
+- listings -> evaluations
 
 ## sprints
 
-- [x] **sprint 0** - 1 semana: estruturação inicial do projeto. Criar ambiente de desenvolvimento com Expo Go e expo router, criar migrations para o banco, configurar thema para React Native Elements;
-- [ ] **sprint 1** - 2 semanas: autenticação e auth-guards **(parcial: UI de login + `useAuthStore` (Zustand) + auth-guard prontos; signup, recuperação de senha, persist middleware e hash de senha com `expo-crypto` ficam para o checkpoint 3)**;
-- [ ] **sprint 2** - 1 semanas: implementação de CRUD para veículos de interesse; levantamento origem de dados para marketplaces de origem e também de marcas e modelos de carros **(parcial: tela de listagem + `useVehicleStore` (Zustand) com dados placeholder; CRUD real via repository + SQLite no checkpoint 3)**;
-- [ ] **sprint 3** - 1 semanas: implementação tela de detalhes de anúncio de venda de carros;
-- [ ] **sprint 4** - 1 semana: implementação de métricas de avaliação dos carros (anuncio: recomendado, atenção, evitar), estado de conservação (bom, regular, ruim); preço (acima da fipe, abaixo da fipe, na fipe) e badges para métricas;
-- [ ] **sprint 5** - 2 semana: dashboard. Implementação funcionalidade de ações rápidas, cards para anúncios adicionados recentemente, melhores anúncios, estatísticas gerais **(parcial: layout pronto consumindo `useAuthStore` e `useVehicleStore`; cards de estatísticas reais e ações rápidas no checkpoint 3)**;
-- [ ] **sprint 6** - 1 semana: busca e filtros;
-- [ ] **sprint 7** - 1 semana: teste de usabilidade; listagem e correção de bugs;
+> **Revisão de escopo (pós-checkpoint 2).** O planejamento foi revisado para priorizar um **MVP funcional**: a funcionalidade central foi mantida (autenticar → cadastrar veículo de interesse → adicionar anúncios → avaliar e pontuar → comparar → dashboard). Funcionalidades não essenciais foram movidas para "Fora do escopo do MVP".
 
-**Tempo total estimado para desenvolvimento do projeto de aproximadamente 10 semanas.**
+- [x] **sprint 0** — estruturação inicial do projeto (Expo Go + Expo Router + tema RNE + estrutura de pastas). **(concluída)**
+- [ ] **sprint 1** *(parcial)* — autenticação e auth-guard: UI de login + `useAuthStore` (Zustand) + auth-guard via `<Redirect />` prontos. **Restante (CP3):** migrar para **Firebase Authentication** (SDK JS, compatível com Expo Go) — cadastro, login, logout, recuperação de senha por e-mail e persistência de sessão.
+- [ ] **sprint 2** — fundação de dados local (**SQLite**): instalar `expo-sqlite`; client com PRAGMAs (`journal_mode=WAL`, `foreign_keys=ON`); `migrations.ts` + tabela `schema_version`; padrão *repository* em `database/repositories/`. Modelo ajustado ao Firebase: sem tabela `users` local; `vehicles.user_id` guarda o UID do Firebase.
+- [ ] **sprint 3** — CRUD real de veículos de interesse: conectar `useVehicleStore` ao `vehicleRepository`; adicionar/editar/remover/listar com formulário validado por Zod; substituir os dados placeholder.
+- [ ] **sprint 4** — CRUD de anúncios (listings): lista de anúncios por veículo, tela de detalhes e formulário (marketplace, link, ano, km, preço, localização, fotos via `expo-image-picker`); validação Zod.
+- [ ] **sprint 5** — avaliação e pontuação: formulário de avaliação (estado geral, preço vs. mercado, histórico de manutenção — notas 1–5), `score` calculado (`utils/scoreCalculator.ts`), badge de recomendação (recomendado / atenção / evitar), pontos positivos/negativos e comparação de anúncios por score.
+- [ ] **sprint 6** *(parcial)* — dashboard + busca + NativeWind: layout do dashboard pronto consumindo os stores. **Restante (CP3):** estatísticas reais a partir do SQLite + ações rápidas; busca simples de veículos (marca/modelo); estilização das novas telas com **NativeWind** (módulo 07).
+- [ ] **sprint 7** — entrega do checkpoint 3: revisão das validações (dado inválido → erro → correção); **build do APK com EAS** + publicação como *Release* no GitHub; teste de usabilidade e correção de bugs; vídeo de defesa (≤ 7 min) e card de destaques.
+
+**Fora do escopo do MVP (reduções e follow-ups conscientes):**
+- Login social (Google/Apple) — complexidade de OAuth no Expo Go.
+- Mapa da localização do anúncio com **OpenStreetMap/Expo-Leaflet** (módulo 12).
+- Filtros multi-critério e ordenações avançadas.
+- Serviço de oficinas/auto-peças/guincho próximos por localização (visão futura).
 
 ## Atualizações desde o último checkpoint
 
