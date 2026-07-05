@@ -18,7 +18,7 @@ const ListEmpty = () => (
 );
 
 export default function DashboardScreen() {
-  const currentUser = useAuthStore((s) => s.currentUser);
+  const user = useAuthStore((s) => s.user);
   const vehicles = useVehicleStore((s) => s.vehicles);
   const recents = vehicles.slice(0, 3);
 
@@ -32,7 +32,7 @@ export default function DashboardScreen() {
       ListHeaderComponent={
         <View style={styles.header}>
           <Text style={styles.greeting}>
-            Olá, {currentUser?.email ?? ""}
+            Olá, {user?.email ?? ""}
           </Text>
           <View style={styles.statsRow}>
             <StatCard
