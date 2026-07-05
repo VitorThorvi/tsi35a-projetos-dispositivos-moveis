@@ -5,9 +5,9 @@ import { VehicleCard } from "../../components/vehicles/VehicleCard";
 import { colors } from "../../constants/theme";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useVehicleStore } from "../../stores/useVehicleStore";
-import type { Vehicle } from "../../types/Vehicle";
+import type { VehicleWithCounts } from "../../types/Vehicle";
 
-const renderVehicle = ({ item }: { item: Vehicle }) => (
+const renderVehicle = ({ item }: { item: VehicleWithCounts }) => (
   <VehicleCard vehicle={item} />
 );
 
