@@ -15,9 +15,6 @@ import { colors } from "../../constants/theme";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { authErrorMessage } from "../../utils/authErrorMessages";
 
-const SIGNUP_HREF = "/(auth)/signup" as never;
-const FORGOT_PASSWORD_HREF = "/(auth)/forgot-password" as never;
-
 function firebaseErrorCode(err: unknown): string | undefined {
   if (typeof err === "object" && err !== null && "code" in err) {
     const code = (err as { code: unknown }).code;
@@ -26,51 +23,35 @@ function firebaseErrorCode(err: unknown): string | undefined {
   return undefined;
 }
 
-export default function LoginScreen() {
-  const login = useAuthStore((s) => s.login);
-  const enterGuestMode = useAuthStore((s) => s.enterGuestMode);
+export default function ForgotPasswordScreen() {
+  const resetPassword = useAuthStore((s) => s.resetPassword);
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
   const [emailError, setEmailError] = useState<string | undefined>();
-  const [senhaError, setSenhaError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
 
   async function handleSubmit() {
     setEmailError(undefined);
-    setSenhaError(undefined);
     setFormError(undefined);
     setSubmitting(true);
     try {
-      await login(email, senha);
+      await resetPassword(email);
+      setSent(true);
     } catch (err) {
       if (err instanceof ZodError) {
         for (const issue of err.issues) {
           const field = issue.path[0];
           if (field === "email") setEmailError("E-mail inválido.");
-          else if (field === "password")
-            setSenhaError("A senha deve ter ao menos 6 caracteres.");
         }
       } else {
         const code = firebaseErrorCode(err);
         setFormError(
           code
             ? authErrorMessage(code)
-            : "Não foi possível entrar. Tente novamente.",
+            : "Não foi possível enviar o e-mail de recuperação. Tente novamente.",
         );
       }
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleGuest() {
-    setFormError(undefined);
-    setSubmitting(true);
-    try {
-      await enterGuestMode();
-    } catch {
-      setFormError("Não foi possível continuar sem conta. Tente novamente.");
     } finally {
       setSubmitting(false);
     }
@@ -82,53 +63,55 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.form}>
-        <Text style={styles.heading}>Bem-vindo</Text>
-        <Text style={styles.subheading}>
-          Entre com sua conta para continuar
-        </Text>
+        <Text style={styles.heading}>Recuperar senha</Text>
 
-        <AuthInput
-          label="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          errorText={emailError}
-        />
-        <AuthInput
-          label="Senha"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry
-          errorText={senhaError}
-        />
+        {sent ? (
+          <>
+            <Text style={styles.successText}>
+              Enviamos um e-mail com as instruções para redefinir sua senha.
+            </Text>
+            <Text style={styles.successHint}>
+              Verifique sua caixa de entrada e a pasta de spam.
+            </Text>
+            <View style={styles.footer}>
+              <Link href="/(auth)/login" style={styles.footerLink}>
+                Voltar para o login
+              </Link>
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={styles.subheading}>
+              Informe seu e-mail e enviaremos um link para redefinir sua senha.
+            </Text>
 
-        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+            <AuthInput
+              label="E-mail"
+              value={email}
+              onChangeText={setEmail}
+              errorText={emailError}
+            />
 
-        <Button
-          title="Entrar"
-          onPress={handleSubmit}
-          loading={submitting}
-          disabled={submitting}
-          buttonStyle={styles.submitButton}
-        />
+            {formError ? (
+              <Text style={styles.formError}>{formError}</Text>
+            ) : null}
 
-        <Button
-          title="Continuar sem conta"
-          type="clear"
-          onPress={handleGuest}
-          disabled={submitting}
-          titleStyle={styles.guestTitle}
-        />
+            <Button
+              title="Enviar link de recuperação"
+              onPress={handleSubmit}
+              loading={submitting}
+              disabled={submitting}
+              buttonStyle={styles.submitButton}
+            />
 
-        <Link href={FORGOT_PASSWORD_HREF} style={styles.forgotLink}>
-          Esqueci minha senha
-        </Link>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Não tem conta? </Text>
-          <Link href={SIGNUP_HREF} style={styles.footerLink}>
-            Cadastre-se
-          </Link>
-        </View>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Lembrou sua senha? </Text>
+              <Link href="/(auth)/login" style={styles.footerLink}>
+                Entrar
+              </Link>
+            </View>
+          </>
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -159,12 +142,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   submitButton: { marginTop: 8, paddingVertical: 12 },
-  guestTitle: { color: colors.textSecondary },
-  forgotLink: {
+  successText: {
     color: colors.primary,
-    fontWeight: "600",
+    fontSize: 16,
     textAlign: "center",
-    marginTop: 8,
+  },
+  successHint: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 4,
   },
   footer: {
     flexDirection: "row",

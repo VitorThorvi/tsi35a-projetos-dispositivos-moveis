@@ -15,9 +15,6 @@ import { colors } from "../../constants/theme";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { authErrorMessage } from "../../utils/authErrorMessages";
 
-const SIGNUP_HREF = "/(auth)/signup" as never;
-const FORGOT_PASSWORD_HREF = "/(auth)/forgot-password" as never;
-
 function firebaseErrorCode(err: unknown): string | undefined {
   if (typeof err === "object" && err !== null && "code" in err) {
     const code = (err as { code: unknown }).code;
@@ -26,51 +23,49 @@ function firebaseErrorCode(err: unknown): string | undefined {
   return undefined;
 }
 
-export default function LoginScreen() {
-  const login = useAuthStore((s) => s.login);
-  const enterGuestMode = useAuthStore((s) => s.enterGuestMode);
+export default function SignupScreen() {
+  const signup = useAuthStore((s) => s.signup);
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [nomeError, setNomeError] = useState<string | undefined>();
   const [emailError, setEmailError] = useState<string | undefined>();
   const [senhaError, setSenhaError] = useState<string | undefined>();
+  const [confirmarSenhaError, setConfirmarSenhaError] = useState<
+    string | undefined
+  >();
   const [formError, setFormError] = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit() {
+    setNomeError(undefined);
     setEmailError(undefined);
     setSenhaError(undefined);
+    setConfirmarSenhaError(undefined);
     setFormError(undefined);
     setSubmitting(true);
     try {
-      await login(email, senha);
+      await signup(nome, email, senha, confirmarSenha);
     } catch (err) {
       if (err instanceof ZodError) {
         for (const issue of err.issues) {
           const field = issue.path[0];
-          if (field === "email") setEmailError("E-mail inválido.");
+          if (field === "name") setNomeError("Informe seu nome.");
+          else if (field === "email") setEmailError("E-mail inválido.");
           else if (field === "password")
             setSenhaError("A senha deve ter ao menos 6 caracteres.");
+          else if (field === "confirmPassword")
+            setConfirmarSenhaError(issue.message);
         }
       } else {
         const code = firebaseErrorCode(err);
         setFormError(
           code
             ? authErrorMessage(code)
-            : "Não foi possível entrar. Tente novamente.",
+            : "Não foi possível criar a conta. Tente novamente.",
         );
       }
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleGuest() {
-    setFormError(undefined);
-    setSubmitting(true);
-    try {
-      await enterGuestMode();
-    } catch {
-      setFormError("Não foi possível continuar sem conta. Tente novamente.");
     } finally {
       setSubmitting(false);
     }
@@ -82,11 +77,17 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.form}>
-        <Text style={styles.heading}>Bem-vindo</Text>
+        <Text style={styles.heading}>Crie sua conta</Text>
         <Text style={styles.subheading}>
-          Entre com sua conta para continuar
+          Preencha os dados abaixo para se cadastrar
         </Text>
 
+        <AuthInput
+          label="Nome completo"
+          value={nome}
+          onChangeText={setNome}
+          errorText={nomeError}
+        />
         <AuthInput
           label="E-mail"
           value={email}
@@ -100,33 +101,28 @@ export default function LoginScreen() {
           secureTextEntry
           errorText={senhaError}
         />
+        <AuthInput
+          label="Confirmar senha"
+          value={confirmarSenha}
+          onChangeText={setConfirmarSenha}
+          secureTextEntry
+          errorText={confirmarSenhaError}
+        />
 
         {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
         <Button
-          title="Entrar"
+          title="Criar conta"
           onPress={handleSubmit}
           loading={submitting}
           disabled={submitting}
           buttonStyle={styles.submitButton}
         />
 
-        <Button
-          title="Continuar sem conta"
-          type="clear"
-          onPress={handleGuest}
-          disabled={submitting}
-          titleStyle={styles.guestTitle}
-        />
-
-        <Link href={FORGOT_PASSWORD_HREF} style={styles.forgotLink}>
-          Esqueci minha senha
-        </Link>
-
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Não tem conta? </Text>
-          <Link href={SIGNUP_HREF} style={styles.footerLink}>
-            Cadastre-se
+          <Text style={styles.footerText}>Já tem uma conta? </Text>
+          <Link href="/(auth)/login" style={styles.footerLink}>
+            Entrar
           </Link>
         </View>
       </View>
@@ -159,13 +155,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   submitButton: { marginTop: 8, paddingVertical: 12 },
-  guestTitle: { color: colors.textSecondary },
-  forgotLink: {
-    color: colors.primary,
-    fontWeight: "600",
-    textAlign: "center",
-    marginTop: 8,
-  },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
