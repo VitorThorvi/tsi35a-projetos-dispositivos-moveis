@@ -15,8 +15,12 @@ export default function TabsLayout() {
         options={{ title: "Início", tabBarLabel: "Início" }}
       />
       <Tabs.Screen
-        name="vehicles/index"
-        options={{ title: "Veículos", tabBarLabel: "Veículos" }}
+        name="vehicles"
+        options={{
+          title: "Veículos",
+          tabBarLabel: "Veículos",
+          headerShown: false,
+        }}
       />
     </Tabs>
   );
