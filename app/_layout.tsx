@@ -1,19 +1,34 @@
+import { useEffect } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Redirect, Stack, useSegments } from "expo-router";
 import { ThemeProvider } from "@rneui/themed";
 
-import { theme } from "../constants/theme";
+import { colors, theme } from "../constants/theme";
 import { useAuthStore } from "../stores/useAuthStore";
 
 export default function RootLayout() {
-  const isAuthed = useAuthStore((s) => s.isAuthenticated);
-
+  const status = useAuthStore((s) => s.status);
+  const init = useAuthStore((s) => s.init);
   const segments = useSegments();
+
+  useEffect(() => {
+    void init();
+  }, [init]);
+
+  if (status === "initializing") {
+    return (
+      <View style={styles.splash}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   const inAuthGroup = segments[0] === "(auth)";
 
-  if (!isAuthed && !inAuthGroup) {
+  if (status === "unauthenticated" && !inAuthGroup) {
     return <Redirect href="/(auth)/login" />;
   }
-  if (isAuthed && inAuthGroup) {
+  if ((status === "guest" || status === "authenticated") && inAuthGroup) {
     return <Redirect href="/(tabs)/dashboard" />;
   }
 
@@ -23,3 +38,12 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  splash: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.background,
+  },
+});
