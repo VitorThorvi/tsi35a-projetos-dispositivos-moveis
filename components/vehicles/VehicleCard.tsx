@@ -1,10 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors } from "../../constants/theme";
-import type { Vehicle } from "../../types/Vehicle";
+import type { VehicleWithCounts } from "../../types/Vehicle";
 
 type VehicleCardProps = {
-  vehicle: Vehicle;
+  vehicle: VehicleWithCounts;
   onPress?: () => void;
 };
 
@@ -23,7 +23,9 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
         <Text style={styles.title}>
           {vehicle.brand} {vehicle.model}
         </Text>
-        <Text style={styles.subtitle}>{vehicle.year}</Text>
+        {vehicle.yearStart !== null && (
+          <Text style={styles.subtitle}>{vehicle.yearStart}</Text>
+        )}
       </View>
       <View style={styles.badge}>
         <Text style={styles.badgeText}>{listingsLabel}</Text>
