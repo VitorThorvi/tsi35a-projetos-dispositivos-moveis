@@ -25,8 +25,6 @@ const renderVehicle = ({ item }: { item: VehicleWithCounts }) => (
     vehicle={item}
     onPress={() => router.push(`/(tabs)/vehicles/${item.id}`)}
   />
-const renderVehicle = ({ item }: { item: VehicleWithCounts }) => (
-  <VehicleCard vehicle={item} />
 );
 
 const ListEmpty = ({ searching }: { searching: boolean }) => (
