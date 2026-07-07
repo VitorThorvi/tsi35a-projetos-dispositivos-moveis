@@ -26,6 +26,10 @@ export default function VehiclesLayout() {
         name="[id]/listings/[listingId]/edit"
         options={{ title: "Editar anúncio" }}
       />
+      <Stack.Screen
+        name="[id]/listings/[listingId]/evaluate"
+        options={{ title: "Avaliar anúncio" }}
+      />
     </Stack>
   );
 }

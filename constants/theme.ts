@@ -7,6 +7,8 @@ export const colors = {
   textSecondary: "#64748B",
   border: "#E2E8F0",
   error: "#DC2626",
+  success: "#16A34A",
+  warning: "#D97706",
 } as const;
 
 export type ThemeColors = typeof colors;

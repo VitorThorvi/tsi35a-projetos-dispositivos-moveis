@@ -14,7 +14,7 @@ export const RECOMMENDATIONS = ["recomendado", "atenção", "evitar"] as const;
 
 export type Recommendation = (typeof RECOMMENDATIONS)[number];
 
-const RECOMMENDED_MIN_SCORE = 7;
+export const RECOMMENDED_MIN_SCORE = 7;
 const CAUTION_MIN_SCORE = 4;
 
 export function getRecommendation(score: number): Recommendation {

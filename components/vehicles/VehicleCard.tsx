@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { cardStyles, textStyles } from "../../constants/styles";
 import { colors } from "../../constants/theme";
 import type { VehicleWithCounts } from "../../types/Vehicle";
 
@@ -17,18 +18,18 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed }) => [styles.card, pressed && cardStyles.pressed]}
     >
-      <View style={styles.body}>
-        <Text style={styles.title}>
+      <View style={cardStyles.body}>
+        <Text style={textStyles.titleSm}>
           {vehicle.brand} {vehicle.model}
         </Text>
         {vehicle.yearStart !== null && (
-          <Text style={styles.subtitle}>{vehicle.yearStart}</Text>
+          <Text style={textStyles.muted}>{vehicle.yearStart}</Text>
         )}
       </View>
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>{listingsLabel}</Text>
+        <Text style={textStyles.badgeText}>{listingsLabel}</Text>
       </View>
     </Pressable>
   );
@@ -45,31 +46,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.background,
   },
-  cardPressed: {
-    opacity: 0.7,
-  },
-  body: {
-    flex: 1,
-    gap: 4,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
   badge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
     backgroundColor: colors.primary,
-  },
-  badgeText: {
-    color: colors.background,
-    fontSize: 12,
-    fontWeight: "600",
   },
 });

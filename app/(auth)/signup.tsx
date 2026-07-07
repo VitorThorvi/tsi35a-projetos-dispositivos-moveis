@@ -1,17 +1,11 @@
 import { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, Text, View } from "react-native";
 import { Button } from "@rneui/themed";
 import { Link } from "expo-router";
 import { ZodError } from "zod";
 
 import { AuthInput } from "../../components/ui/AuthInput";
-import { colors } from "../../constants/theme";
+import { authStyles } from "../../constants/styles";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { authErrorMessage } from "../../utils/authErrorMessages";
 
@@ -73,12 +67,12 @@ export default function SignupScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={authStyles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.form}>
-        <Text style={styles.heading}>Crie sua conta</Text>
-        <Text style={styles.subheading}>
+      <View style={authStyles.form}>
+        <Text style={authStyles.heading}>Crie sua conta</Text>
+        <Text style={authStyles.subheading}>
           Preencha os dados abaixo para se cadastrar
         </Text>
 
@@ -109,19 +103,21 @@ export default function SignupScreen() {
           errorText={confirmarSenhaError}
         />
 
-        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+        {formError ? (
+          <Text style={authStyles.formError}>{formError}</Text>
+        ) : null}
 
         <Button
           title="Criar conta"
           onPress={handleSubmit}
           loading={submitting}
           disabled={submitting}
-          buttonStyle={styles.submitButton}
+          buttonStyle={authStyles.submitButton}
         />
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Já tem uma conta? </Text>
-          <Link href="/(auth)/login" style={styles.footerLink}>
+        <View style={authStyles.footer}>
+          <Text style={authStyles.footerText}>Já tem uma conta? </Text>
+          <Link href="/(auth)/login" style={authStyles.footerLink}>
             Entrar
           </Link>
         </View>
@@ -129,37 +125,3 @@ export default function SignupScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    padding: 24,
-    justifyContent: "center",
-  },
-  form: { gap: 8 },
-  heading: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 4,
-  },
-  subheading: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 24,
-  },
-  formError: {
-    color: colors.error,
-    fontSize: 14,
-    textAlign: "center",
-  },
-  submitButton: { marginTop: 8, paddingVertical: 12 },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 16,
-  },
-  footerText: { color: colors.textSecondary },
-  footerLink: { color: colors.primary, fontWeight: "600" },
-});

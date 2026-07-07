@@ -1,8 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 
 import { ListingForm } from "../../../../../../components/listings/ListingForm";
+import { screenStyles } from "../../../../../../constants/styles";
 import { colors } from "../../../../../../constants/theme";
 import type { ListingInput } from "../../../../../../schemas/listingSchema";
 import { useListingStore } from "../../../../../../stores/useListingStore";
@@ -60,7 +61,7 @@ export default function EditListingScreen() {
 
   if (loading || !listing) {
     return (
-      <View style={styles.loading}>
+      <View style={screenStyles.centered}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -75,12 +76,3 @@ export default function EditListingScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.background,
-  },
-});

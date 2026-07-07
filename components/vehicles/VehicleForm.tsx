@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 
-import { colors } from "../../constants/theme";
+import { formStyles, screenStyles } from "../../constants/styles";
 import {
   vehicleInputSchema,
   type VehicleInput,
@@ -70,7 +70,7 @@ export function VehicleForm({
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={screenStyles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
@@ -120,7 +120,7 @@ export function VehicleForm({
           onChangeText={setNotes}
           errorMessage={errors.notes}
           multiline
-          inputStyle={styles.notesInput}
+          inputStyle={formStyles.notesInput}
         />
         <Button
           title={submitLabel}
@@ -135,17 +135,9 @@ export function VehicleForm({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   content: {
     padding: 16,
     paddingBottom: 32,
-  },
-  notesInput: {
-    height: 96,
-    textAlignVertical: "top",
   },
   submitButton: {
     marginTop: 8,
