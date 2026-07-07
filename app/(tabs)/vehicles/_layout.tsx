@@ -14,6 +14,18 @@ export default function VehiclesLayout() {
       <Stack.Screen name="new" options={{ title: "Novo veículo" }} />
       <Stack.Screen name="[id]/index" options={{ title: "Detalhes" }} />
       <Stack.Screen name="[id]/edit" options={{ title: "Editar veículo" }} />
+      <Stack.Screen
+        name="[id]/listings/new"
+        options={{ title: "Novo anúncio" }}
+      />
+      <Stack.Screen
+        name="[id]/listings/[listingId]/index"
+        options={{ title: "Anúncio" }}
+      />
+      <Stack.Screen
+        name="[id]/listings/[listingId]/edit"
+        options={{ title: "Editar anúncio" }}
+      />
     </Stack>
   );
 }

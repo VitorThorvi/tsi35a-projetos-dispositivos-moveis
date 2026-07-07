@@ -1,21 +1,31 @@
 import { Button } from "@rneui/themed";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import {
+  type Href,
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+} from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  ScrollView,
+  FlatList,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 
+import { ListingCard } from "../../../../components/listings/ListingCard";
 import { colors } from "../../../../constants/theme";
+import { useListingStore } from "../../../../stores/useListingStore";
 import { useVehicleStore } from "../../../../stores/useVehicleStore";
+import type { Listing } from "../../../../types/Listing";
 import type { Vehicle } from "../../../../types/Vehicle";
 
-const listingNewHref = (vehicleId: string) =>
-  `/(tabs)/vehicles/${vehicleId}/listings/new` as never;
+const EMPTY: Listing[] = [];
+
+const listingNewHref = (vehicleId: string): Href =>
+  `/(tabs)/vehicles/${vehicleId}/listings/new`;
 
 function formatYearRange(
   yearStart: number | null,
@@ -27,10 +37,65 @@ function formatYearRange(
   return null;
 }
 
+type VehicleDetailHeaderProps = {
+  vehicle: Vehicle;
+  deleting: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+};
+
+function VehicleDetailHeader({
+  vehicle,
+  deleting,
+  onEdit,
+  onDelete,
+}: VehicleDetailHeaderProps) {
+  const yearLabel = formatYearRange(vehicle.yearStart, vehicle.yearEnd);
+
+  return (
+    <View style={styles.header}>
+      <Text style={styles.title}>
+        {vehicle.brand} {vehicle.model}
+      </Text>
+      {yearLabel !== null && <Text style={styles.yearLine}>{yearLabel}</Text>}
+
+      {vehicle.notes ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Observações</Text>
+          <Text style={styles.notes}>{vehicle.notes}</Text>
+        </View>
+      ) : null}
+
+      <View style={styles.actions}>
+        <Button
+          title="Editar"
+          type="outline"
+          onPress={onEdit}
+          disabled={deleting}
+          containerStyle={styles.actionButton}
+        />
+        <Button
+          title="Excluir"
+          onPress={onDelete}
+          disabled={deleting}
+          buttonStyle={styles.deleteButton}
+          containerStyle={styles.actionButton}
+        />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Anúncios</Text>
+      </View>
+    </View>
+  );
+}
+
 export default function VehicleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const getVehicle = useVehicleStore((s) => s.getVehicle);
   const removeVehicle = useVehicleStore((s) => s.removeVehicle);
+  const loadByVehicle = useListingStore((s) => s.loadByVehicle);
+  const listings = useListingStore((s) => s.listingsByVehicle[id]) ?? EMPTY;
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -58,10 +123,25 @@ export default function VehicleDetailScreen() {
         }
       };
       void load();
+      loadByVehicle(id).catch(() =>
+        Alert.alert("Erro", "Não foi possível carregar os anúncios."),
+      );
       return () => {
         cancelled = true;
       };
-    }, [id, getVehicle]),
+    }, [id, getVehicle, loadByVehicle]),
+  );
+
+  const renderListing = useCallback(
+    ({ item }: { item: Listing }) => (
+      <ListingCard
+        listing={item}
+        onPress={() =>
+          router.push(`/(tabs)/vehicles/${id}/listings/${item.id}`)
+        }
+      />
+    ),
+    [id],
   );
 
   function confirmDelete() {
@@ -97,49 +177,33 @@ export default function VehicleDetailScreen() {
     );
   }
 
-  const yearLabel = formatYearRange(vehicle.yearStart, vehicle.yearEnd);
-
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>
-        {vehicle.brand} {vehicle.model}
-      </Text>
-      {yearLabel !== null && <Text style={styles.yearLine}>{yearLabel}</Text>}
-
-      {vehicle.notes ? (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Observações</Text>
-          <Text style={styles.notes}>{vehicle.notes}</Text>
-        </View>
-      ) : null}
-
-      <View style={styles.actions}>
-        <Button
-          title="Editar"
-          type="outline"
-          onPress={() => router.push(`/(tabs)/vehicles/${id}/edit`)}
-          disabled={deleting}
-          containerStyle={styles.actionButton}
+    <FlatList
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      data={listings}
+      keyExtractor={(item) => item.id}
+      renderItem={renderListing}
+      ListHeaderComponent={
+        <VehicleDetailHeader
+          vehicle={vehicle}
+          deleting={deleting}
+          onEdit={() => router.push(`/(tabs)/vehicles/${id}/edit`)}
+          onDelete={confirmDelete}
         />
-        <Button
-          title="Excluir"
-          onPress={confirmDelete}
-          disabled={deleting}
-          buttonStyle={styles.deleteButton}
-          containerStyle={styles.actionButton}
-        />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Anúncios</Text>
+      }
+      ListEmptyComponent={
         <Text style={styles.emptyNotice}>Nenhum anúncio cadastrado.</Text>
+      }
+      ListFooterComponent={
         <Button
           title="Adicionar anúncio"
           type="outline"
           onPress={() => router.push(listingNewHref(id))}
+          disabled={deleting}
         />
-      </View>
-    </ScrollView>
+      }
+    />
   );
 }
 
@@ -156,6 +220,9 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 24,
+    gap: 8,
+  },
+  header: {
     gap: 8,
   },
   title: {
