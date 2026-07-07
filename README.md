@@ -98,18 +98,31 @@ O projeto é desenvolvido com as seguintes tecnologias:
 
 A autenticação roda no Firebase para fins de cadastrod e usuário; os dados de veículos, anúncios e avaliações ficam offline no SQLite local.
 
-[//]: # (TODO descrever corretamente como executar em ambiente de desenvolvimento)
-[//]: # (`git clone repo check-engine-club`)
+## Como executar localmente (Expo Go)
 
-[//]: # ()
-[//]: # ()
-[//]: # (`cd check-engine-club`)
+Pré-requisitos: Node.js LTS, Yarn e um simulador iOS / emulador Android — ou o app **Expo Go** em um dispositivo físico.
 
-[//]: # ()
-[//]: # (`yarn install`)
+```bash
+git clone git@github.com:VitorThorvi/tsi35a-projetos-dispositivos-moveis.git check-engine-club
+cd check-engine-club
+yarn install
+cp .env.example .env
+yarn start
+```
 
-[//]: # ()
-[//]: # (`yarn start`)
+Antes de iniciar, preencha o `.env` com as credenciais do seu projeto Firebase. As chaves ficam **somente** no `.env` (ignorado pelo git); o `.env.example` lista as variáveis `EXPO_PUBLIC_FIREBASE_*` necessárias. Sem elas o app falha ao abrir com `auth/invalid-api-key`.
+
+Com o servidor iniciado, pressione `i` para abrir no simulador iOS (ou use `yarn ios` direto), `a` para o emulador Android, ou leia o QR code com o Expo Go no celular.
+
+### Build local do APK (EAS)
+
+O build local do Android exige **JDK 17** — o Gradle do Expo SDK 54 não roda em JDKs mais novos (falha com `Unsupported class file major version`). No macOS:
+
+```bash
+JAVA_HOME=$(/usr/libexec/java_home -v 17) npx eas build -p android --profile preview --local
+```
+
+Em outros sistemas, aponte `JAVA_HOME` para uma instalação do JDK 17. Na primeira execução o EAS CLI pede login em uma conta Expo e vincula o repositório a um projeto EAS próprio. O arquivo `.easignore` garante que o `.env` (ignorado pelo git) entre no pacote do build, para que as variáveis `EXPO_PUBLIC_FIREBASE_*` sejam embutidas no bundle.
 
 
 ## telas
