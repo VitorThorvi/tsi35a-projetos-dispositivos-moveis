@@ -13,6 +13,12 @@ import {
 } from "react-native";
 
 import { VehicleCard } from "../../../components/vehicles/VehicleCard";
+import {
+  cardStyles,
+  listStyles,
+  screenStyles,
+  textStyles,
+} from "../../../constants/styles";
 import { colors } from "../../../constants/theme";
 import { selectUid, useAuthStore } from "../../../stores/useAuthStore";
 import { useVehicleStore } from "../../../stores/useVehicleStore";
@@ -28,8 +34,8 @@ const renderVehicle = ({ item }: { item: VehicleWithCounts }) => (
 );
 
 const ListEmpty = ({ searching }: { searching: boolean }) => (
-  <View style={styles.empty}>
-    <Text style={styles.emptyText}>
+  <View style={listStyles.empty}>
+    <Text style={textStyles.muted}>
       {searching ? "Nenhum veículo encontrado." : "Nenhum veículo cadastrado."}
     </Text>
   </View>
@@ -54,7 +60,7 @@ export default function VehiclesScreen() {
   const showSpinner = loading && vehicles.length === 0;
 
   return (
-    <View style={styles.container}>
+    <View style={screenStyles.container}>
       <SearchBar
         placeholder="Buscar por marca ou modelo"
         placeholderTextColor={colors.textSecondary}
@@ -80,7 +86,7 @@ export default function VehiclesScreen() {
       <Pressable
         accessibilityLabel="Adicionar veículo"
         onPress={() => router.push(VEHICLE_NEW_HREF)}
-        style={({ pressed }) => [styles.fab, pressed && styles.fabPressed]}
+        style={({ pressed }) => [styles.fab, pressed && cardStyles.pressed]}
       >
         <Ionicons name="add" size={32} color={colors.background} />
       </Pressable>
@@ -89,10 +95,6 @@ export default function VehiclesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   searchContainer: {
     backgroundColor: colors.background,
     borderTopWidth: 0,
@@ -118,14 +120,6 @@ const styles = StyleSheet.create({
     paddingBottom: 96,
     gap: 12,
   },
-  empty: {
-    paddingVertical: 48,
-    alignItems: "center",
-  },
-  emptyText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-  },
   fab: {
     position: "absolute",
     bottom: 24,
@@ -136,8 +130,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
-  },
-  fabPressed: {
-    opacity: 0.7,
   },
 });

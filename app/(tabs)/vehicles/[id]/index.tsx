@@ -16,6 +16,11 @@ import {
 } from "react-native";
 
 import { ListingCard } from "../../../../components/listings/ListingCard";
+import {
+  detailStyles,
+  screenStyles,
+  textStyles,
+} from "../../../../constants/styles";
 import { colors } from "../../../../constants/theme";
 import { useListingStore } from "../../../../stores/useListingStore";
 import { useVehicleStore } from "../../../../stores/useVehicleStore";
@@ -54,37 +59,37 @@ function VehicleDetailHeader({
 
   return (
     <View style={styles.header}>
-      <Text style={styles.title}>
+      <Text style={textStyles.titleLg}>
         {vehicle.brand} {vehicle.model}
       </Text>
       {yearLabel !== null && <Text style={styles.yearLine}>{yearLabel}</Text>}
 
       {vehicle.notes ? (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Observações</Text>
+        <View style={detailStyles.section}>
+          <Text style={textStyles.titleSm}>Observações</Text>
           <Text style={styles.notes}>{vehicle.notes}</Text>
         </View>
       ) : null}
 
-      <View style={styles.actions}>
+      <View style={detailStyles.actions}>
         <Button
           title="Editar"
           type="outline"
           onPress={onEdit}
           disabled={deleting}
-          containerStyle={styles.actionButton}
+          containerStyle={detailStyles.actionButton}
         />
         <Button
           title="Excluir"
           onPress={onDelete}
           disabled={deleting}
-          buttonStyle={styles.deleteButton}
-          containerStyle={styles.actionButton}
+          buttonStyle={detailStyles.deleteButton}
+          containerStyle={detailStyles.actionButton}
         />
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Anúncios</Text>
+      <View style={detailStyles.section}>
+        <Text style={textStyles.titleSm}>Anúncios</Text>
       </View>
     </View>
   );
@@ -171,7 +176,7 @@ export default function VehicleDetailScreen() {
 
   if (loading || !vehicle) {
     return (
-      <View style={styles.loading}>
+      <View style={screenStyles.centered}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -179,8 +184,8 @@ export default function VehicleDetailScreen() {
 
   return (
     <FlatList
-      style={styles.container}
-      contentContainerStyle={styles.content}
+      style={screenStyles.container}
+      contentContainerStyle={detailStyles.content}
       data={listings}
       keyExtractor={(item) => item.id}
       renderItem={renderListing}
@@ -193,7 +198,7 @@ export default function VehicleDetailScreen() {
         />
       }
       ListEmptyComponent={
-        <Text style={styles.emptyNotice}>Nenhum anúncio cadastrado.</Text>
+        <Text style={textStyles.muted}>Nenhum anúncio cadastrado.</Text>
       }
       ListFooterComponent={
         <Button
@@ -208,59 +213,16 @@ export default function VehicleDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.background,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 24,
-    gap: 8,
-  },
   header: {
     gap: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.text,
   },
   yearLine: {
     fontSize: 16,
     color: colors.textSecondary,
   },
-  section: {
-    marginTop: 24,
-    gap: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.text,
-  },
   notes: {
     fontSize: 15,
     lineHeight: 22,
     color: colors.text,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 24,
-  },
-  actionButton: {
-    flex: 1,
-  },
-  deleteButton: {
-    backgroundColor: colors.error,
-  },
-  emptyNotice: {
-    fontSize: 14,
-    color: colors.textSecondary,
   },
 });

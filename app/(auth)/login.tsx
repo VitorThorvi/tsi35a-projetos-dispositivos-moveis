@@ -11,6 +11,7 @@ import { Link } from "expo-router";
 import { ZodError } from "zod";
 
 import { AuthInput } from "../../components/ui/AuthInput";
+import { authStyles } from "../../constants/styles";
 import { colors } from "../../constants/theme";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { authErrorMessage } from "../../utils/authErrorMessages";
@@ -78,12 +79,12 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={authStyles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.form}>
-        <Text style={styles.heading}>Bem-vindo</Text>
-        <Text style={styles.subheading}>
+      <View style={authStyles.form}>
+        <Text style={authStyles.heading}>Bem-vindo</Text>
+        <Text style={authStyles.subheading}>
           Entre com sua conta para continuar
         </Text>
 
@@ -101,14 +102,16 @@ export default function LoginScreen() {
           errorText={senhaError}
         />
 
-        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+        {formError ? (
+          <Text style={authStyles.formError}>{formError}</Text>
+        ) : null}
 
         <Button
           title="Entrar"
           onPress={handleSubmit}
           loading={submitting}
           disabled={submitting}
-          buttonStyle={styles.submitButton}
+          buttonStyle={authStyles.submitButton}
         />
 
         <Button
@@ -123,9 +126,9 @@ export default function LoginScreen() {
           Esqueci minha senha
         </Link>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Não tem conta? </Text>
-          <Link href={SIGNUP_HREF} style={styles.footerLink}>
+        <View style={authStyles.footer}>
+          <Text style={authStyles.footerText}>Não tem conta? </Text>
+          <Link href={SIGNUP_HREF} style={authStyles.footerLink}>
             Cadastre-se
           </Link>
         </View>
@@ -135,30 +138,6 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    padding: 24,
-    justifyContent: "center",
-  },
-  form: { gap: 8 },
-  heading: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 4,
-  },
-  subheading: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 24,
-  },
-  formError: {
-    color: colors.error,
-    fontSize: 14,
-    textAlign: "center",
-  },
-  submitButton: { marginTop: 8, paddingVertical: 12 },
   guestTitle: { color: colors.textSecondary },
   forgotLink: {
     color: colors.primary,
@@ -166,11 +145,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 8,
   },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 16,
-  },
-  footerText: { color: colors.textSecondary },
-  footerLink: { color: colors.primary, fontWeight: "600" },
 });

@@ -2,6 +2,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { StatCard } from "../../components/ui/StatCard";
 import { VehicleCard } from "../../components/vehicles/VehicleCard";
+import { listStyles, textStyles } from "../../constants/styles";
 import { colors } from "../../constants/theme";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useVehicleStore } from "../../stores/useVehicleStore";
@@ -12,8 +13,8 @@ const renderVehicle = ({ item }: { item: VehicleWithCounts }) => (
 );
 
 const ListEmpty = () => (
-  <View style={styles.empty}>
-    <Text style={styles.emptyText}>Nenhum anúncio recente.</Text>
+  <View style={listStyles.empty}>
+    <Text style={textStyles.muted}>Nenhum anúncio recente.</Text>
   </View>
 );
 
@@ -82,13 +83,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: colors.text,
     marginTop: 8,
-  },
-  empty: {
-    paddingVertical: 48,
-    alignItems: "center",
-  },
-  emptyText: {
-    color: colors.textSecondary,
-    fontSize: 14,
   },
 });

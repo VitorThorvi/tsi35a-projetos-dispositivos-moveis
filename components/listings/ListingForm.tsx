@@ -9,6 +9,7 @@ import {
 } from "react-native";
 
 import { MARKETPLACE_LABELS } from "../../constants/marketplaces";
+import { formStyles, screenStyles } from "../../constants/styles";
 import { colors } from "../../constants/theme";
 import {
   listingInputSchema,
@@ -104,14 +105,14 @@ export function ListingForm({
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={screenStyles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={formStyles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.fieldLabel}>Marketplace</Text>
+        <Text style={formStyles.fieldLabel}>Marketplace</Text>
         <ButtonGroup
           buttons={MARKETPLACE_BUTTONS}
           selectedIndex={marketplaceIndex}
@@ -121,7 +122,7 @@ export function ListingForm({
           containerStyle={styles.marketplaceGroup}
         />
         {errors.marketplace ? (
-          <Text style={styles.marketplaceError}>{errors.marketplace}</Text>
+          <Text style={formStyles.fieldError}>{errors.marketplace}</Text>
         ) : null}
 
         <Input
@@ -185,7 +186,7 @@ export function ListingForm({
           errorMessage={errors.location}
         />
 
-        <Text style={styles.fieldLabel}>Fotos</Text>
+        <Text style={formStyles.fieldLabel}>Fotos</Text>
         <PhotoPicker
           photos={photos}
           onChange={setPhotos}
@@ -197,8 +198,8 @@ export function ListingForm({
           onPress={handleSubmit}
           loading={submitting}
           disabled={submitting}
-          buttonStyle={styles.submitButton}
-          containerStyle={styles.submitContainer}
+          buttonStyle={formStyles.submitButton}
+          containerStyle={formStyles.submitContainer}
         />
       </ScrollView>
     </KeyboardAvoidingView>
@@ -206,40 +207,11 @@ export function ListingForm({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 32,
-    gap: 8,
-  },
-  fieldLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: colors.textSecondary,
-    marginLeft: 10,
-    marginBottom: 4,
-  },
   marketplaceGroup: {
     borderRadius: 8,
     borderColor: colors.border,
   },
   marketplaceSelected: {
     backgroundColor: colors.primary,
-  },
-  marketplaceError: {
-    color: colors.error,
-    fontSize: 12,
-    marginLeft: 10,
-    marginTop: 4,
-  },
-  submitContainer: {
-    marginTop: 16,
-    marginHorizontal: 10,
-  },
-  submitButton: {
-    paddingVertical: 12,
   },
 });

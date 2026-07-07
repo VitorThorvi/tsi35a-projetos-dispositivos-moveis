@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { Redirect, Stack, useSegments } from "expo-router";
 import { ThemeProvider } from "@rneui/themed";
 
+import { screenStyles } from "../constants/styles";
 import { colors, theme } from "../constants/theme";
 import { useAuthStore } from "../stores/useAuthStore";
 
@@ -17,7 +18,7 @@ export default function RootLayout() {
 
   if (status === "initializing") {
     return (
-      <View style={styles.splash}>
+      <View style={screenStyles.centered}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -38,12 +39,3 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  splash: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.background,
-  },
-});
