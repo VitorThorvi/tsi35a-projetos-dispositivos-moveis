@@ -1,8 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 
 import { VehicleForm } from "../../../../components/vehicles/VehicleForm";
+import { screenStyles } from "../../../../constants/styles";
 import { colors } from "../../../../constants/theme";
 import type { VehicleInput } from "../../../../schemas/vehicleSchema";
 import { useVehicleStore } from "../../../../stores/useVehicleStore";
@@ -57,7 +58,7 @@ export default function EditVehicleScreen() {
 
   if (loading || !vehicle) {
     return (
-      <View style={styles.loading}>
+      <View style={screenStyles.centered}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -72,12 +73,3 @@ export default function EditVehicleScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.background,
-  },
-});

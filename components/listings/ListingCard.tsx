@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { MARKETPLACE_LABELS } from "../../constants/marketplaces";
+import { cardStyles, chipStyles, textStyles } from "../../constants/styles";
 import { colors } from "../../constants/theme";
 import type { Listing } from "../../types/Listing";
 
@@ -27,7 +28,7 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed }) => [styles.card, pressed && cardStyles.pressed]}
     >
       {hasPhoto && (
         <Image
@@ -36,17 +37,17 @@ export function ListingCard({ listing, onPress }: ListingCardProps) {
           contentFit="cover"
         />
       )}
-      <View style={styles.body}>
-        <Text style={styles.title}>
+      <View style={cardStyles.body}>
+        <Text style={textStyles.titleSm}>
           {listing.brand} {listing.model}
         </Text>
-        <Text style={styles.subtitle}>
+        <Text style={textStyles.muted}>
           {listing.year} · {listing.mileageKm.toLocaleString("pt-BR")} km
         </Text>
         <Text style={styles.price}>{formatPrice(listing.askingPrice)}</Text>
         {marketplaceLabel !== null && (
-          <View style={styles.chip}>
-            <Text style={styles.chipText}>{marketplaceLabel}</Text>
+          <View style={chipStyles.chip}>
+            <Text style={chipStyles.chipText}>{marketplaceLabel}</Text>
           </View>
         )}
       </View>
@@ -67,44 +68,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.background,
   },
-  cardPressed: {
-    opacity: 0.7,
-  },
   thumb: {
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: 8,
     backgroundColor: colors.border,
   },
-  body: {
-    flex: 1,
-    gap: 4,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
   price: {
     fontSize: 15,
     fontWeight: "700",
     color: colors.primary,
-  },
-  chip: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  chipText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.textSecondary,
   },
 });

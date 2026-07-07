@@ -14,7 +14,14 @@ import {
   View,
 } from "react-native";
 
+import { RecommendationBadge } from "../../../../../../components/evaluation/RecommendationBadge";
 import { MARKETPLACE_LABELS } from "../../../../../../constants/marketplaces";
+import {
+  chipStyles,
+  detailStyles,
+  screenStyles,
+  textStyles,
+} from "../../../../../../constants/styles";
 import { colors } from "../../../../../../constants/theme";
 import { useListingStore } from "../../../../../../stores/useListingStore";
 import type { ListingWithEvaluation } from "../../../../../../types/Listing";
@@ -106,7 +113,7 @@ export default function ListingDetailScreen() {
 
   if (loading || !listing) {
     return (
-      <View style={styles.loading}>
+      <View style={screenStyles.centered}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -124,7 +131,10 @@ export default function ListingDetailScreen() {
   if (listing.location !== null) factParts.push(listing.location);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={screenStyles.container}
+      contentContainerStyle={detailStyles.content}
+    >
       {listing.photos.length > 0 && (
         <FlatList
           horizontal
@@ -136,14 +146,14 @@ export default function ListingDetailScreen() {
         />
       )}
 
-      <Text style={styles.title}>
+      <Text style={textStyles.titleLg}>
         {listing.brand} {listing.model}
       </Text>
       <Text style={styles.price}>{formatPrice(listing.askingPrice)}</Text>
       <Text style={styles.facts}>{factParts.join(" · ")}</Text>
       {marketplaceLabel !== null && (
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>{marketplaceLabel}</Text>
+        <View style={chipStyles.chip}>
+          <Text style={chipStyles.chipText}>{marketplaceLabel}</Text>
         </View>
       )}
 
@@ -153,14 +163,60 @@ export default function ListingDetailScreen() {
         </Pressable>
       )}
 
-      {listing.evaluation === null && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Avaliação</Text>
-          <Text style={styles.emptyNotice}>Nenhuma avaliação registrada.</Text>
-        </View>
-      )}
+      <View style={detailStyles.section}>
+        <Text style={textStyles.titleSm}>Avaliação</Text>
+        {listing.evaluation === null ? (
+          <>
+            <Text style={textStyles.muted}>Nenhuma avaliação registrada.</Text>
+            <Button
+              title="Avaliar"
+              type="outline"
+              onPress={() =>
+                router.push(
+                  `/(tabs)/vehicles/${id}/listings/${listingId}/evaluate`,
+                )
+              }
+              disabled={deleting}
+              containerStyle={styles.evaluateButton}
+            />
+          </>
+        ) : (
+          <>
+            <View style={styles.scoreRow}>
+              <Text style={styles.score}>
+                {listing.evaluation.score.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                })}
+              </Text>
+              <RecommendationBadge score={listing.evaluation.score} />
+            </View>
+            {listing.evaluation.pros.length > 0 && (
+              <Text style={textStyles.muted}>
+                Prós: {listing.evaluation.pros.join(" · ")}
+              </Text>
+            )}
+            {listing.evaluation.cons.length > 0 && (
+              <Text style={textStyles.muted}>
+                Contras: {listing.evaluation.cons.join(" · ")}
+              </Text>
+            )}
+            <Button
+              title="Editar avaliação"
+              type="outline"
+              onPress={() =>
+                router.push(
+                  `/(tabs)/vehicles/${id}/listings/${listingId}/evaluate`,
+                )
+              }
+              disabled={deleting}
+              containerStyle={styles.evaluateButton}
+            />
+          </>
+        )}
+      </View>
 
-      <View style={styles.actions}>
+      <View style={detailStyles.actions}>
         <Button
           title="Editar"
           type="outline"
@@ -168,14 +224,14 @@ export default function ListingDetailScreen() {
             router.push(`/(tabs)/vehicles/${id}/listings/${listingId}/edit`)
           }
           disabled={deleting}
-          containerStyle={styles.actionButton}
+          containerStyle={detailStyles.actionButton}
         />
         <Button
           title="Excluir"
           onPress={confirmDelete}
           disabled={deleting}
-          buttonStyle={styles.deleteButton}
-          containerStyle={styles.actionButton}
+          buttonStyle={detailStyles.deleteButton}
+          containerStyle={detailStyles.actionButton}
         />
       </View>
     </ScrollView>
@@ -183,20 +239,6 @@ export default function ListingDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.background,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 24,
-    gap: 8,
-  },
   photoStrip: {
     gap: 12,
     paddingBottom: 8,
@@ -207,11 +249,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.border,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.text,
-  },
   price: {
     fontSize: 20,
     fontWeight: "700",
@@ -221,47 +258,23 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textSecondary,
   },
-  chip: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  chipText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.textSecondary,
-  },
   link: {
     fontSize: 15,
     fontWeight: "600",
     color: colors.primary,
     marginTop: 4,
   },
-  section: {
-    marginTop: 24,
-    gap: 8,
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
+  score: {
+    fontSize: 28,
+    fontWeight: "700",
     color: colors.text,
   },
-  emptyNotice: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 24,
-  },
-  actionButton: {
-    flex: 1,
-  },
-  deleteButton: {
-    backgroundColor: colors.error,
+  evaluateButton: {
+    marginTop: 8,
   },
 });
